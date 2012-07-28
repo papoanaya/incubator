@@ -11,3 +11,8 @@ Incubator contains code that is midway in development or design.
   used in combination of other tools for access data from Mantis tickets. 
   It is still a work in progress, a lot of functions are not
   done. 
+- dorglendar.nlsp : orglendar clone for dzen2 using newlisp
+- plantuml_helpers.el : This is a Gits I found in github for plantuml in
+  which simplifies compiling plantuml files. It would be nice to have a
+  plantuml mode in Emacs. I'm dropping this gist here as a basis for
+  such mode.
