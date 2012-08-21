@@ -32,11 +32,8 @@
 
 (define (parse_agenda)
   (let ((today (date (date-value) 0 "%Y-%m-%d"))
-	(task_name "")
-	(tasks '())
-	(dates '())
-	(maxlen 20))
-    (setq data (list tasks dates maxlen))
+               (task_name ""))
+
    ; what is files?
     
     (setq files '("crap.org"))
@@ -63,37 +60,37 @@
 
 			   (if (and d task_name (>= task_date today))
 			       (let ((find_begin "")
-				     (task_start (find "[A-Z]+\s+" task_name))
+				     (task_start (last (regex {[A-Z]+\s+} task_name))))
 
 				     (if (and task_start  (= find_begin 1))
-					 (setq task_name (slice task_name, task_start+1)))
+                         (setq task_name (slice task_name, task_start+1)))
 
-				     (setq tasks (find "\s+(:.+):" task_name))
-				     (setq task_end $0)
-				     (setq task_tags $2)
+				     (setq tasks (regex {\s+(:.+):} task_name))
+
+                     (if tasks
+                         (begin 
+                           (setq task_end (nth 1 tasks))
+                           (setq task_tags $1))
+                         (begin 
+                           (setq task_end (+ (length task_name) 1))
+                           (setq task_tags "")))
 
 				     (if task_tags 
-					 (setq task_name (slice task_name 1 (- task_end 1)))
-					 (setq task_tags " "))
+                         (setq task_name (slice task_name 0 (- task_end 1)))
+                         (setq task_tags " "))
   
 				     (setq len (+ (length task_name) (length task_tags)))
 				     
-				     ; Adjust Max Length (position 2 of the list)
-
-				     (if (and (> len (nth 2 data))
-					      (>= task_date today))
-					 (setq (nth 2 data) len))
-				     
 				     ; Push items to the tasks list, on the first of the data.
+				     (push (list task_name (list task_name task_tags task_date) 
+                                 (list (int (trim y "0" "")) (int (trim m "0" "")) (int (trim d "0" "")))) data))))
+			   
+			(begin 
+              (setq task_name (regex {^\*+\s+(.+)} line))
+              (setq task_name $1) ))))))))
+  
 
-				     (push (list task_name tags task-date) (nth 0 data))
-				     (push (cons (list y (int m) (int d)) true) (nth 1 data)) )))
-			   )
-					 
-			(setq task_name (find "%*+%s+(.+)" line))) )) )) )
 
-  (println data)
-)
 
 ;   table.sort(data.tasks, function (a, b) return a.date < b.date end)
 
@@ -139,10 +136,6 @@
 	     (let ((last_in_week (= (mod (+ day first_day_in_week) 7) 0))
                (day_str (format "%3s" (string day))))
 
-;; (append (pop_spaces "", day, 2)
-;;         (and (string last_in_week ) 
-;;              (or "" " ")))
-
 	       (cond
             ((and (= cal_month (nth 1 (now)))
                   (= cal_year (nth 0 (now)))
@@ -151,9 +144,16 @@
                (setq this_month nil)
                (setq result (append result "^fg(yellow)" day_str "^fg()")))) ;needs to be made bold 
 
-            ;;(nth 1 data)  List must be the data
-            ;; ((find-all (append (string cal_year) (string cal_month) (string day)) '() )  
-            ;;  (setq result (append result day_str))) ;needs to be made bold 
+            ((not (for-all
+                  (fn (data-item)
+                    (setq date-item (nth 2 data-item))
+                    (if (and
+                         (= cal_year (nth 0 date-item))
+                         (= cal_month (nth 1 date-item))
+                         (= day (nth 2 date-item)))
+                        nil
+                        true)) data))
+              (setq result (append result "^fg(green)" day_str "^fg()"))) ;needs to be made bold 
 
             (true
              (setq result (append result day_str))))
@@ -171,7 +171,7 @@
     
 	(append header "\n" result)
 
-;;   (! (append "echo \"" result "\"| dzen2 -p 50 -x 400 -y 60 -w 160 -l 5 -ta l -sa l"))
+   (! (append "echo \"" result "\"| dzen2 -p 50 -x 400 -y 60 -w 160 -l 5 -ta l -sa l"))
 
 ))
  
