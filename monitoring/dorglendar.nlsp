@@ -1,8 +1,11 @@
-; Calendar with Emacs org-mode agenda for  DZen2
-; Inspired by and contributed from the org-awesome module, copyright of Damien Leone 
-; and Alexander Yakushev 
-; Licensed under GPLv2
-; @author Luis R. Anaya
+#!/opt/home/papo/bin/newlisp
+
+;; Calendar with Emacs org-mode agenda for  DZen2
+;; Inspired by and contributed from the org-awesome module, copyright of Damien Leone 
+;; and Alexander Yakushev 
+;; Licensed under GPLv2
+;; @author Luis R. Anaya
+
 
 (context 'orglendar)
 
@@ -121,6 +124,7 @@
 	(setq first_day_in_week (int  (date first_day 0 "%w")))
 
 	(setq result " Su Mo Tu We Th Fr Sa\n")
+
 	(dotimes (i first_day_in_week)
               (setq result (append result (format "%3s" " "))))
 
@@ -212,3 +216,4 @@
            "\"| dzen2 -p 50 -x 0 -y 0 -w 400 -l 20 -ta l -sa l -e 'onstart=uncollapse;button3=exit:13'"))
 
 (context MAIN)
+(exit)
