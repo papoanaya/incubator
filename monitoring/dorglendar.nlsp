@@ -1,8 +1,8 @@
 #!/opt/home/papo/bin/newlisp
 
 ;; Calendar with Emacs org-mode agenda for  DZen2
-;; Inspired by and contributed from the org-awesome module, copyright of Damien Leone 
-;; and Alexander Yakushev 
+;; Inspired by and contributed from the org-awesome module, copyright of Damien Leone
+;; and Alexander Yakushev
 ;; Licensed under GPLv2
 ;; @author Luis R. Anaya
 
@@ -27,19 +27,19 @@
 
 
 
-(define (comp_agenda x y) 
+(define (comp_agenda x y)
   (let ((x-date (last x))
         (y-date (last y)))
 
     (< x-date y-date)))
 
 
-(define (parse_agenda files) 
+(define (parse_agenda files)
   (let ((today (date (date-value) 0 "%Y-%m-%d"))
                (task_name ""))
 
     (dolist (file files)
-            
+
       (set 'fd (open file "r"))
       (if (nil? fd)
 	  (println (format "W: orglendar: cannot find  %s" file))
@@ -68,36 +68,37 @@
 				     (setq tasks (regex {\s+(:.+):} task_name))
 
                      (if tasks
-                         (begin 
+                         (begin
                            (setq task_end (nth 1 tasks))
                            (setq task_tags $1))
-                         (begin 
+                         (begin
                            (setq task_end (+ (length task_name) 1))
                            (setq task_tags "")))
 
-				     (if task_tags 
+				     (if task_tags
                          (setq task_name (slice task_name 0 (- task_end 1)))
                          (setq task_tags " "))
-  
+
 				     (setq len (+ (length task_name) (length task_tags)))
-				     
+
 				     ; Push items to the tasks list, on the first of the data.
-				     (push (list task_name (list task_name task_tags task_date) 
+				     (push (list task_name (list task_name task_tags task_date)
                                  (list (int (trim y "0" "")) (int (trim m "0" "")) (int (trim d "0" "")))) data))))
-			   
-			(begin 
+
+			(begin
               (setq task_name (regex {^\*+\s+(.+)} line))
-              (setq task_name $1) ))))))) 
+              (setq task_name $1))))
+        (close fd)))))
   (sort data comp_agenda))
-  
+
 
 (define (create_calendar)
   (let ((offset (or offset 0))
         (right-now (date (date-value) 0 "*t"))
         (cal_month (nth 1 (now)))
         (cal_year (nth 0 (now))))
-    
-	(cond 
+
+	(cond
 	 ((> cal_month 12)
 	  (setq cal_month (mod cal_month 12))
 	  (setq cal_year (+ cal_year 1)))
@@ -105,11 +106,11 @@
 	  (setq cal_month (+ cal_month 12))
 	  (setq cal_year (- cal_year 1))) )
 
-	(setq cal_output 
+	(setq cal_output
           (exec (format "cal  %d %d"
                         cal_month
                         cal_year)))
-    
+
     (setq last_days
           (map
            (fn (w)
@@ -136,7 +137,7 @@
                   (= day  (nth 2 (now))))
              (begin
                (setq this_month nil)
-               (setq result (append result "^fg(yellow)" day_str "^fg()")))) ;needs to be made bold 
+               (setq result (append result "^fg(yellow)" day_str "^fg()")))) ;needs to be made bold
 
             ((not (for-all
                   (fn (data-item)
@@ -147,22 +148,21 @@
                          (= day (nth 2 date-item)))
                         nil
                         true)) data))
-              (setq result (append result "^fg(green)" day_str "^fg()"))) ;needs to be made bold 
+              (setq result (append result "^fg(green)" day_str "^fg()"))) ;needs to be made bold
 
             (true
              (setq result (append result day_str))))
 
-	       (if (or last_in_week 
+	       (if (or last_in_week
                     (= (string day) (string last_day)))
-               (setq result (append result "\n"))))) 
+               (setq result (append result "\n")))))
 
 	(setq header "")
 
-	(if this_month 
+	(if this_month
 	    (setq header (date (date-value) 0 " %a, %d %b %Y"))
 	    (setq header (date first_day 0 " %B %Y")))
-	
-    
+
 	(append header "\n" result)))
 
 
@@ -170,11 +170,11 @@
   (let ((result "")
         (maxlen = (+ (length (map first data) 3))))
 
-        (if (and limit_todo_length  
+        (if (and limit_todo_length
                  (< limit_todo_length max_len))
             (setq maxlen limit_todo_length))
-        
-        
+
+
         (let ((limit 0))
           (dolist (tasks data)
                   (setq working-list (nth 1 tasks))
@@ -182,8 +182,8 @@
                   (setq task_type $1)
                   (setq task_description $2)
 
-                  (setq result 
-                        (append result 
+                  (setq result
+                        (append result
                                 (format "^fg(%s)%-5s^fg() %-25s  - %s : %s\n"
                                         (case task_type
                                           ("TODO" "red")
@@ -197,10 +197,10 @@
           (if (= result "" )
               " "
               result)))
-              
+
 (define (get_calendar_and_todo_text)
-  (cond 
-   (parse_on_show 
+  (cond
+   (parse_on_show
     (begin
       (setq data nil)
       (parse_agenda files)))
@@ -208,11 +208,11 @@
     (parse_agenda)))
 
   (let ((header nil))
-    (append 
+    (append
      (create_calendar) "\n"
      (create_todo))))
 
-(! (append "echo \"" (get_calendar_and_todo_text)  
+(! (append "echo \"" (get_calendar_and_todo_text)
            "\"| dzen2 -p 50 -x 0 -y 0 -w 400 -l 20 -ta l -sa l -e 'onstart=uncollapse;button3=exit:13'"))
 
 (context MAIN)
