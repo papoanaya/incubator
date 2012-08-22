@@ -6,7 +6,8 @@
 
 (context 'orglendar)
 
-(set 'files '())
+(setq files '("crap.org"))
+
 (set 'char-width nil)
 (set 'text_color  "#FFFFFF")
 (set 'today_color  "#00FF00")
@@ -14,7 +15,7 @@
 (set 'font  "monospace 8")
 (set 'parse_on_show true)
 (set 'calendar_width  21)
-(set 'limit_todo_length  nil)
+(set 'limit_todo_length  40)
 
 (set 'calendar nil)
 (set 'todo nil)
@@ -30,16 +31,12 @@
     (append s1 sps (string s2))))
 
 
-(define (parse_agenda)
+(define (parse_agenda files) 
   (let ((today (date (date-value) 0 "%Y-%m-%d"))
                (task_name ""))
 
-   ; what is files?
-    
-    (setq files '("crap.org"))
-
     (dolist (file files)
-
+            
       (set 'fd (open file "r"))
       (if (nil? fd)
 	  (println (format "W: orglendar: cannot find  %s" file))
@@ -87,14 +84,8 @@
 			   
 			(begin 
               (setq task_name (regex {^\*+\s+(.+)} line))
-              (setq task_name $1) ))))))))
+              (setq task_name $1) ))))))) data)
   
-
-
-
-;   table.sort(data.tasks, function (a, b) return a.date < b.date end)
-
-
 
 (define (create_calendar)
   (let ((offset (or offset 0))
@@ -169,48 +160,54 @@
 	    (setq header (date first_day 0 "%B %Y")))
 	
     
-	(append header "\n" result)
+	(append header "\n" result)))
 
-   (! (append "echo \"" result "\"| dzen2 -p 50 -x 400 -y 60 -w 160 -l 5 -ta l -sa l"))
-
-))
- 
 
 (define (create_todo)
   (let ((result "")
-        (maxlen = (+ data.maxlen 3))
+        (maxlen = (+ (length (map first data) 3))))
 
         (if (and limit_todo_length  
                  (< limit_todo_length max_len))
             (setq maxlen limit_todo_length))
-        (let (prev_date limit tname)
+        
+        
+        (let ((limit 0))
+          (dolist (tasks data)
+                  (setq working-list (nth 1 tasks))
+                  (setq task_type  (regex {([A-Z]+)\s+} (nth 0 working-list)))
+                  (setq task_type $1)
 
-          (dolist (tasks  data.tasks)
-                  (if (find prev_date tasks.date)
-                      (setq result (append result task.date ) ))
-                  (setq tname task.name)
-                  (setq limit (- maxlen (length task.tags) 3))
-                  (if (< limit (length tname))
-                      (setq tname (slice tname 1 (- limit 3))))
-                  (setq result (append result (pop_spaces tname, task.tags, maxlen)))
-                  (if (find i data.tasks)
-                      (setq result (append result "\n"))))
-          (if (= result "" ) " "
-              (font text_color result data))))))
+                  (setq result 
+                        (append result 
+                                (format "^fg(%s)%-30s^fg() - %s : %s\n"
+                                        (case task_type
+                                          ("TODO" "red")
+                                          ("DONE" "green")
+                                          (true "yellow"))
+                                        (nth 0 working-list)
+                                        (nth 2 working-list)
+                                        (nth 1 working-list))))))
 
+          (if (= result "" )
+              " "
+              result)))
+              
+(define (get_calendar_and_todo_text)
+  (cond 
+   (parse_on_show 
+    (begin
+      (setq data nil)
+      (parse_agenda files)))
+   ((not data)
+    (parse_agenda)))
 
-(define (get_calendar_and_todo_text pm-offset)
-  (if (or parse_on_show (not data))
-      (parse_agenda))
-  (setq offset pm-offset)
+  (let ((header nil))
+    (append 
+     (create_calendar) "\n"
+     (create_todo))))
 
-  (let ((header nil )
-        (cal create_calendar))
-    (create_todo)))
-
-
-;; DZEN2 Specific Comes Here
-
-
+(! (append "echo \"" (get_calendar_and_todo_text)  
+           "\"| dzen2 -p 50 -x 0 -y 0 -w 400 -l 20 -ta l -sa l -e 'onstart=uncollapse;button3=exit:13'"))
 
 (context MAIN)
