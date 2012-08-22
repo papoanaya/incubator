@@ -119,8 +119,6 @@
 
 	(setq last_day    (int (last (filter string? last_days))))
 	(setq first_day (date-value  cal_year  cal_month 1))
-
-
 	(setq first_day_in_week (int  (date first_day 0 "%w")))
 
 	(setq result " Su Mo Tu We Th Fr Sa\n")
@@ -180,17 +178,19 @@
         (let ((limit 0))
           (dolist (tasks data)
                   (setq working-list (nth 1 tasks))
-                  (setq task_type  (regex {([A-Z]+)\s+} (nth 0 working-list)))
+                  (setq task_re  (regex {([A-Z]+)\s+(.*)} (nth 0 working-list)))
                   (setq task_type $1)
+                  (setq task_description $2)
 
                   (setq result 
                         (append result 
-                                (format "^fg(%s)%-30s^fg() - %s : %s\n"
+                                (format "^fg(%s)%-5s^fg() %-25s  - %s : %s\n"
                                         (case task_type
                                           ("TODO" "red")
                                           ("DONE" "green")
                                           (true "yellow"))
-                                        (nth 0 working-list)
+                                        task_type
+                                        task_description
                                         (nth 2 working-list)
                                         (nth 1 working-list))))))
 
