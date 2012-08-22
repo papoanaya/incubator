@@ -23,12 +23,12 @@
 (set 'data nil)
 
 
-(define (pop_spaces s1,s2,maxsize)
-  (let ((sps ""))
-    (for (i 1 (- maxsize (length s1) (length s2)))
-	 (begin 
-	   (set 'sps (append sps " "))))
-    (append s1 sps (string s2))))
+
+(define (comp_agenda x y) 
+  (let ((x-date (last x))
+        (y-date (last y)))
+
+    (< x-date y-date)))
 
 
 (define (parse_agenda files) 
@@ -84,7 +84,8 @@
 			   
 			(begin 
               (setq task_name (regex {^\*+\s+(.+)} line))
-              (setq task_name $1) ))))))) data)
+              (setq task_name $1) ))))))) 
+  (sort data comp_agenda))
   
 
 (define (create_calendar)
@@ -156,8 +157,8 @@
 	(setq header "")
 
 	(if this_month 
-	    (setq header (date (date-value) 0 "%a, %d %b %Y"))
-	    (setq header (date first_day 0 "%B %Y")))
+	    (setq header (date (date-value) 0 " %a, %d %b %Y"))
+	    (setq header (date first_day 0 " %B %Y")))
 	
     
 	(append header "\n" result)))
