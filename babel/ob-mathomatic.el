@@ -1,10 +1,10 @@
-;;; ob-maxima.el --- org-babel functions for maxima evaluation
+;;; ob-mathomatic.el --- org-babel functions for mathomatic evaluation
 
 ;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
 
 ;; Author: Eric S Fraga
 ;;	Eric Schulte
-;; Keywords: literate programming, reproducible research, maxima
+;; Keywords: literate programming, reproducible research, mathomatic
 ;; Homepage: http://orgmode.org
 
 ;; This file is part of GNU Emacs.
@@ -24,11 +24,11 @@
 
 ;;; Commentary:
 
-;; Org-Babel support for evaluating maxima entries.
+;; Org-Babel support for evaluating mathomatic entries.
 ;;
 ;; This differs from most standard languages in that
 ;;
-;; 1) there is no such thing as a "session" in maxima
+;; 1) there is no such thing as a "session" in mathomatic
 ;;
 ;; 2) we are adding the "cmdline" header argument
 
@@ -38,10 +38,10 @@
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("mathomatic" . "math"))
 
-(defvar org-babel-default-header-args:maxima '())
+(defvar org-babel-default-header-args:mathomatic '())
 
 (defcustom org-babel-mathomatic-command
-  (if (boundp 'maxima-command) maxima-command "mathomatic")
+  (if (boundp 'mathomatic-command) mathomatic-command "mathomatic")
   "Command used to call mathomatic on the shell."
   :group 'org-babel)
 
@@ -54,7 +54,7 @@
 		 (let ((graphic-file (org-babel-mathomatic-graphical-output-file params)))
 		   (if graphic-file
 		       (format ;; Need to add command to send to file. 
-			"%S"
+			"set plot set terminal png\;set output %S " 
 			graphic-file)
 		     ""))
 		 ;; variables
