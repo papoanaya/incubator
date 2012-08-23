@@ -54,7 +54,7 @@
 		 (let ((graphic-file (org-babel-mathomatic-graphical-output-file params)))
 		   (if graphic-file
 		       (format ;; Need to add command to send to file. 
-			"set plot set terminal png\;set output %S " 
+			"set plot set terminal png\\;set output %S " 
 			graphic-file)
 		     ""))
 		 ;; variables
