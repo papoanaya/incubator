@@ -54,9 +54,17 @@
 		 (let ((graphic-file (org-babel-mathomatic-graphical-output-file params)))
 		   (if graphic-file
 		       (cond 
-		       ((string-match ".\ps$" graphic-file)
+		       ((string-match ".\.ps$" graphic-file)
 			(format ;; Need to add command to send to file. 
 			 "set plot set terminal postscript\\;set output %S " 
+			 graphic-file))
+		       ((string-match ".\.eps$" graphic-file)
+			(format ;; Need to add command to send to file. 
+			 "set plot set terminal postscript eps\\;set output %S "
+			 graphic-file))
+		       ((string-match ".\.pic$" graphic-file)
+			(format ;; Need to add command to send to file. 
+			 "set plot set terminal gpic\\;set output %S " 
 			 graphic-file))
 		       (t 
 			(format ;; Need to add command to send to file. 
