@@ -53,9 +53,24 @@
 		 ;; graphic output
 		 (let ((graphic-file (org-babel-maxima-graphical-output-file params)))
 		   (if graphic-file
-		       (format
-			"set_plot_option ([gnuplot_term, png]); set_plot_option ([gnuplot_out_file, %S]);"
-			graphic-file)
+               (cond 
+                ((string-match ".\.eps$" graphic-file)
+                 (format ;; Need to add command to send to file. 
+                  "set_plot_option ([gnuplot_term, postscript eps]); set_plot_option ([gnuplot_out_file, %S]);"
+                  graphic-file))
+                ((string-match ".\.ps$" graphic-file)
+                 (format ;; Need to add command to send to file. 
+                  "set_plot_option ([gnuplot_term, postscript]); set_plot_option ([gnuplot_out_file, %S]);"
+                  graphic-file))
+
+                ((string-match ".\.pic$" graphic-file)
+                 (format ;; Need to add command to send to file. 
+                  "set_plot_option ([gnuplot_term, gpic]); set_plot_option ([gnuplot_out_file, %S]);"
+                  graphic-file))
+                (t 
+                 (format
+                  "set_plot_option ([gnuplot_term, png]); set_plot_option ([gnuplot_out_file, %S]);"
+                  graphic-file)))
 		     ""))
 		 ;; variables
 		 (mapconcat 'org-babel-maxima-var-to-maxima vars "\n")
