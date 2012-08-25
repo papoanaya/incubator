@@ -53,9 +53,15 @@
 		 ;; graphic output
 		 (let ((graphic-file (org-babel-mathomatic-graphical-output-file params)))
 		   (if graphic-file
-		       (format ;; Need to add command to send to file. 
-			"set plot set terminal png\\;set output %S " 
-			graphic-file)
+		       (cond 
+		       ((string-match ".\ps$" graphic-file)
+			(format ;; Need to add command to send to file. 
+			 "set plot set terminal postscript\\;set output %S " 
+			 graphic-file))
+		       (t 
+			(format ;; Need to add command to send to file. 
+			 "set plot set terminal png\\;set output %S " 
+			 graphic-file)))
 		     ""))
 		 ;; variables
 		 (mapconcat 'org-babel-mathomatic-var-to-mathomatic vars "\n")
