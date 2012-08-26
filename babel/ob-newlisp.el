@@ -25,30 +25,7 @@
 ;;; Commentary:
 
 ;; This library enables the use of Newlisp in the multi-language
-;; programming framework Org-Babel. Newlisp is a minimal yet
-;; fascinating lisp dialect and a highly productive application
-;; framework for web-based client-server applications on top of
-;; object-oriented databases. A good way to learn Newlisp is to first
-;; read Paul Grahams essay "The hundred year language"
-;; (http://www.paulgraham.com/hundred.html) and then study the various
-;; documents and essays published in the Newlisp wiki
-;; (http://newlisp.com/5000/-2.html). Newlisp is included in some
-;; GNU/Linux Distributions, and can be downloaded here:
-;; http://software-lab.de/down.html. It ships with a newlisp-mode and
-;; a inferior-newlisp-mode for Emacs (to be found in the /lib/el/
-;; directory).
-
-;; Although it might seem more natural to use Emacs Lisp for most
-;; Lisp-based programming tasks inside Org-Mode, an Emacs library
-;; written in Emacs Lisp, Newlisp has at least two outstanding
-;; features that make it a valuable addition to Org-Babel:
-
-;; Newlisp _is_ an object-oriented database with a Prolog-based query
-;; language implemented in Newlisp (Pilog). Database objects are
-;; first-class members of the language.
-
-;; Newlisp is an extremely productive framework for the development
-;; of interactive web-applications (on top of a database).
+;; programming framework Org-Babel.
 
 ;;; Requirements:
 
