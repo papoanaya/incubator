@@ -1,4 +1,4 @@
-;;; ob-newlisp.el --- org-babel functions for newlisp evaluation
+;;; ob-jlang.el --- org-babel functions for jlang evaluation
 
 ;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
 
@@ -24,30 +24,30 @@
 
 ;;; Commentary:
 
-;; This library enables the use of Newlisp in the multi-language
-;; programming framework Org-Babel. Newlisp is a minimal yet
+;; This library enables the use of Jlang in the multi-language
+;; programming framework Org-Babel. Jlang is a minimal yet
 ;; fascinating lisp dialect and a highly productive application
 ;; framework for web-based client-server applications on top of
-;; object-oriented databases. A good way to learn Newlisp is to first
+;; object-oriented databases. A good way to learn Jlang is to first
 ;; read Paul Grahams essay "The hundred year language"
 ;; (http://www.paulgraham.com/hundred.html) and then study the various
-;; documents and essays published in the Newlisp wiki
-;; (http://newlisp.com/5000/-2.html). Newlisp is included in some
+;; documents and essays published in the Jlang wiki
+;; (http://jlang.com/5000/-2.html). Jlang is included in some
 ;; GNU/Linux Distributions, and can be downloaded here:
-;; http://software-lab.de/down.html. It ships with a newlisp-mode and
-;; a inferior-newlisp-mode for Emacs (to be found in the /lib/el/
+;; http://software-lab.de/down.html. It ships with a jlang-mode and
+;; a inferior-jlang-mode for Emacs (to be found in the /lib/el/
 ;; directory).
 
 ;; Although it might seem more natural to use Emacs Lisp for most
 ;; Lisp-based programming tasks inside Org-Mode, an Emacs library
-;; written in Emacs Lisp, Newlisp has at least two outstanding
+;; written in Emacs Lisp, Jlang has at least two outstanding
 ;; features that make it a valuable addition to Org-Babel:
 
-;; Newlisp _is_ an object-oriented database with a Prolog-based query
-;; language implemented in Newlisp (Pilog). Database objects are
+;; Jlang _is_ an object-oriented database with a Prolog-based query
+;; language implemented in Jlang (Pilog). Database objects are
 ;; first-class members of the language.
 
-;; Newlisp is an extremely productive framework for the development
+;; Jlang is an extremely productive framework for the development
 ;; of interactive web-applications (on top of a database).
 
 ;;; Requirements:
@@ -59,27 +59,27 @@
 (require 'comint)
 (eval-when-compile (require 'cl))
 
-(declare-function run-newlisp "ext:inferior-newlisp" (cmd))
+(declare-function run-jlang "ext:inferior-jlang" (cmd))
 
 ;; optionally define a file extension for this language
-(add-to-list 'org-babel-tangle-lang-exts '("newlisp" . "lsp"))
+(add-to-list 'org-babel-tangle-lang-exts '("jlang" . "ijs"))
 
 ;;; interferes with settings in org-babel buffer?
 ;; optionally declare default header arguments for this language
-;; (defvar org-babel-default-header-args:newlisp
+;; (defvar org-babel-default-header-args:jlang
 ;;   '((:colnames . "no"))
-;;   "Default arguments for evaluating a newlisp source block.")
+;;   "Default arguments for evaluating a jlang source block.")
 
-(defvar org-babel-newlisp-eoe "org-babel-newlisp-eoe"
+(defvar org-babel-jlang-eoe "org-babel-jlang-eoe"
   "String to indicate that evaluation has completed.")
 
-(defcustom org-babel-newlisp-cmd "newlisp"
-  "Name of command used to evaluate newlisp blocks."
+(defcustom org-babel-jlang-cmd "jconsole"
+  "Name of command used to evaluate jlang blocks."
   :group 'org-babel
   :version "24.1"
   :type 'string)
 
-(defun org-babel-expand-body:newlisp (body params &optional processed-params)
+(defun org-babel-expand-body:jlang (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
   (let ((vars (mapcar #'cdr (org-babel-get-header params :var)))
         (result-params (cdr (assoc :result-params params)))
@@ -95,31 +95,22 @@
                 " \n" body ") )")
       body)))
 
-(defun org-babel-execute:newlisp (body params)
-  "Execute a block of Newlisp code with org-babel.  This function is
+(defun org-babel-execute:jlang (body params)
+  "Execute a block of Jlang code with org-babel.  This function is
  called by `org-babel-execute-src-block'"
-  (message "executing Newlisp source code block")
+  (message "executing Jlang source code block")
   (let* (
 	 ;; name of the session or "none"
 	 (session-name (cdr (assoc :session params)))
 	 ;; set the session if the session variable is non-nil
-	 (session (org-babel-newlisp-initiate-session session-name))
+	 (session (org-babel-jlang-initiate-session session-name))
 	 ;; either OUTPUT or VALUE which should behave as described above
 	 (result-type (cdr (assoc :result-type params)))
 	 (result-params (cdr (assoc :result-params params)))
-	 ;; expand the body with `org-babel-expand-body:newlisp'
-	 (full-body (org-babel-expand-body:newlisp body params))
+	 ;; expand the body with `org-babel-expand-body:jlang'
+	 (full-body (org-babel-expand-body:jlang body params))
          ;; wrap body appropriately for the type of evaluation and results
-         (wrapped-body
-          (cond
-           ((or (member "code" result-params)
-                (member "pp" result-params))
-            (format "(write-file \"/dev/null\" %s)" full-body))
-           ((and (member "value" result-params) (not session))
-            (format "(write-file \"/dev/null\" %s)" full-body))
-           ((member "value" result-params)
-            (format "(write-file \"/dev/null\" %s)" full-body))
-           (t full-body))))
+     (wrapped-body full-body))
 
     ((lambda (result)
        (if (or (member "verbatim" result-params)
@@ -134,7 +125,7 @@
          ;; session based evaluation
 	 (mapconcat ;; <- joins the list back together into a single string
           #'identity
-          (butlast ;; <- remove the org-babel-newlisp-eoe line
+          (butlast ;; <- remove the org-babel-jlang-eoe line
            (delq nil
                  (mapcar
                   (lambda (line)
@@ -158,38 +149,38 @@
                        ;;   line)
 		       )))
                   ;; returns a list of the output of each evaluated expression
-                  (org-babel-comint-with-output (session org-babel-newlisp-eoe)
+                  (org-babel-comint-with-output (session org-babel-jlang-eoe)
                     (insert wrapped-body) (comint-send-input)
-                    (insert "'" org-babel-newlisp-eoe) (comint-send-input)))))
+                    (insert "'" org-babel-jlang-eoe) (comint-send-input)))))
           "\n")
        ;; external evaluation
-       (let ((script-file (org-babel-temp-file "newlisp-script-")))
+       (let ((script-file (org-babel-temp-file "jlang-script-")))
 	 (with-temp-file script-file
-	   (insert (concat wrapped-body "(exit)")))
+	   (insert (concat wrapped-body )))
          (org-babel-eval
           (format "%s %s"
-                  org-babel-newlisp-cmd
+                  org-babel-jlang-cmd
                   (org-babel-process-file-name script-file))
           ""))))))
 
-(defun org-babel-newlisp-initiate-session (&optional session-name)
+(defun org-babel-jlang-initiate-session (&optional session-name)
   "If there is not a current inferior-process-buffer in SESSION
 then create.  Return the initialized session."
   (unless (string= session-name "none")
-    ; (require 'inferior-newlisp)
-    (newlisp-show-interpreter)
+    ; (require 'inferior-jlang)
+    (jlang-show-interpreter)
     ;; provide a reasonable default session name
-    (let ((session (or session-name "*newlisp*")))
+    (let ((session (or session-name "*jlang*")))
       ;; check if we already have a live session by this name
       (if (org-babel-comint-buffer-livep session)
           (get-buffer session)
         (save-window-excursion
-          (run-newlisp org-babel-newlisp-cmd)
+          (run-jlang org-babel-jlang-cmd)
           (rename-buffer session-name)
           (current-buffer))))))
 
-(provide 'ob-newlisp)
+(provide 'ob-jlang)
 
 
 
-;;; ob-newlisp.el ends here
+;;; ob-jlang.el ends here
