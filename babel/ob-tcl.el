@@ -1,4 +1,4 @@
-;;; ob-perl.el --- org-babel functions for perl evaluation
+;;; ob-tcl.el --- org-babel functions for tcl evaluation
 
 ;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
 
@@ -24,7 +24,7 @@
 
 ;;; Commentary:
 
-;; Org-Babel support for evaluating perl source code.
+;; Org-Babel support for evaluating tcl source code.
 
 ;;; Code:
 (require 'ob)
@@ -32,87 +32,87 @@
 (eval-when-compile (require 'cl))
 
 (defvar org-babel-tangle-lang-exts)
-(add-to-list 'org-babel-tangle-lang-exts '("perl" . "pl"))
+(add-to-list 'org-babel-tangle-lang-exts '("tcl" . "tcl"))
 
-(defvar org-babel-default-header-args:perl '())
+(defvar org-babel-default-header-args:tcl '())
 
-(defvar org-babel-perl-command "perl"
-  "Name of command to use for executing perl code.")
+(defvar org-babel-tcl-command "tclsh"
+  "Name of command to use for executing tcl code.")
 
-(defun org-babel-execute:perl (body params)
-  "Execute a block of Perl code with Babel.
+(defun org-babel-execute:tcl (body params)
+  "Execute a block of Tcl code with Babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((session (cdr (assoc :session params)))
          (result-params (cdr (assoc :result-params params)))
          (result-type (cdr (assoc :result-type params)))
          (full-body (org-babel-expand-body:generic
-		     body params (org-babel-variable-assignments:perl params)))
-	(session (org-babel-perl-initiate-session session)))
+		     body params (org-babel-variable-assignments:tcl params)))
+	(session (org-babel-tcl-initiate-session session)))
     (org-babel-reassemble-table
-     (org-babel-perl-evaluate session full-body result-type)
+     (org-babel-tcl-evaluate session full-body result-type)
      (org-babel-pick-name
       (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
      (org-babel-pick-name
       (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))))
 
-(defun org-babel-prep-session:perl (session params)
+(defun org-babel-prep-session:tcl (session params)
   "Prepare SESSION according to the header arguments in PARAMS."
-  (error "Sessions are not supported for Perl."))
+  (error "Sessions are not supported for Tcl."))
 
-(defun org-babel-variable-assignments:perl (params)
-  "Return list of perl statements assigning the block's variables."
+(defun org-babel-variable-assignments:tcl (params)
+  "Return list of tcl statements assigning the block's variables."
   (mapcar
    (lambda (pair)
      (format "$%s=%s;"
 	     (car pair)
-	     (org-babel-perl-var-to-perl (cdr pair))))
+	     (org-babel-tcl-var-to-tcl (cdr pair))))
    (mapcar #'cdr (org-babel-get-header params :var))))
 
 ;; helper functions
 
-(defun org-babel-perl-var-to-perl (var)
-  "Convert an elisp value to a perl variable.
-The elisp value, VAR, is converted to a string of perl source code
+(defun org-babel-tcl-var-to-tcl (var)
+  "Convert an elisp value to a tcl variable.
+The elisp value, VAR, is converted to a string of tcl source code
 specifying a var of the same value."
   (if (listp var)
-      (concat "[" (mapconcat #'org-babel-perl-var-to-perl var ", ") "]")
-    (format "%S" var)))
+      (concat "{" (mapconcat #'org-babel-tcl-var-to-tcl var "  ") "}")
+    (format "%s" var)))
 
-(defvar org-babel-perl-buffers '(:default . nil))
+(defvar org-babel-tcl-buffers '(:default . nil))
 
-(defun org-babel-perl-initiate-session (&optional session params)
-  "Return nil because sessions are not supported by perl."
+(defun org-babel-tcl-initiate-session (&optional session params)
+  "Return nil because sessions are not supported by tcl."
 nil)
 
-(defvar org-babel-perl-wrapper-method
+(defvar org-babel-tcl-wrapper-method
   "
-sub main {
-%s
-}
-@r = main;
-open(o, \">%s\");
-print o join(\"\\n\", @r), \"\\n\"")
+set r \" proc main {%s} \"
+set o [open \"%s\" \"w\"];
+puts o r
+close o
 
-(defvar org-babel-perl-pp-wrapper-method
+")
+
+(defvar org-babel-tcl-pp-wrapper-method
   nil)
 
-(defun org-babel-perl-evaluate (session body &optional result-type)
-  "Pass BODY to the Perl process in SESSION.
+(defun org-babel-tcl-evaluate (session body &optional result-type)
+  "Pass BODY to the Tcl process in SESSION.
 If RESULT-TYPE equals 'output then return a list of the outputs
 of the statements in BODY, if RESULT-TYPE equals 'value then
 return the value of the last statement in BODY, as elisp."
-  (when session (error "Sessions are not supported for Perl."))
+  (when session (error "Sessions are not supported for Tcl."))
   (case result-type
-    (output (org-babel-eval org-babel-perl-command body))
-    (value (let ((tmp-file (org-babel-temp-file "perl-")))
+    (output (org-babel-eval org-babel-tcl-command body))
+    (value (let ((tmp-file (org-babel-temp-file "tcl-")))
 	     (org-babel-eval
-	      org-babel-perl-command
-	      (format org-babel-perl-wrapper-method body
+	      org-babel-tcl-command
+	      (format org-babel-tcl-wrapper-method body
 		      (org-babel-process-file-name tmp-file 'noquote)))
 	     (org-babel-eval-read-file tmp-file)))))
 
-(provide 'ob-perl)
+(provide 'ob-tcl)
 
 
 
-;;; ob-perl.el ends here
+;;; ob-tcl.el ends here
