@@ -125,7 +125,7 @@ of the same value."
       (setq val (symbol-name val))
       (when (= (length val) 1)
         (setq val (string-to-char val))))
-      (format "%S: %s$" var
+      (format "%s=%s" var
 	      (org-babel-mathomatic-elisp-to-mathomatic val))))
 
 (defun org-babel-mathomatic-graphical-output-file (params)
@@ -136,7 +136,7 @@ of the same value."
 (defun org-babel-mathomatic-elisp-to-mathomatic (val)
   "Return a string of mathomatic code which evaluates to VAL."
   (if (listp val)
-      (concat "[" (mapconcat #'org-babel-mathomatic-elisp-to-mathomatic val ", ") "]")
+      (mapconcat #'org-babel-mathomatic-elisp-to-mathomatic val " ") 
     (format "%s" val)))
 
 
