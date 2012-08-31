@@ -118,15 +118,15 @@
                     (org-babel-chomp ;; remove trailing newlines
                      (when (> (length line) 0) ;; remove empty lines
 		       (cond
-			;; remove leading "-> " from return values
-			((and (>= (length line) 3)
-			      (string= "-> " (substring line 0 3)))
+			;; remove leading "> " from return values
+			((and (>= (length line) 2)
+			      (string= "> " (substring line 0 2)))
 			 (substring line 3))
-			;; remove trailing "-> <<return-value>>" on the
+			;; remove trailing "> <<return-value>>" on the
 			;; last line of output
 			((and (member "output" result-params)
-			      (string-match-p "->" line))
-			 (substring line 0 (string-match "->" line)))
+			      (string-match-p ">" line))
+			 (substring line 0 (string-match ">" line)))
 			(t line)
 			)
                        ;; (if (and (>= (length line) 3) ;; remove leading "<- "
