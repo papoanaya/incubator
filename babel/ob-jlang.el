@@ -56,21 +56,6 @@
   :version "24.1"
   :type 'string)
 
-(defun org-babel-expand-body:jlang (body params &optional processed-params)
-  "Expand BODY according to PARAMS, return the expanded body."
-  (let ((vars (mapcar #'cdr (org-babel-get-header params :var)))
-        (result-params (cdr (assoc :result-params params)))
-        (print-level nil) (print-length nil))
-    (if (> (length vars) 0)
-        (concat "(begin (let ("
-                (mapconcat
-                 (lambda (var)
-                   (format "%S '%S)"
-                           (print (car var))
-                           (print (cdr var))))
-                 vars "\n      ")
-                " \n" body ") )")
-      body)))
 
 (defun org-babel-execute:jlang (body params)
   "Execute a block of Jlang code with org-babel.  This function is
@@ -108,23 +93,8 @@
                   (lambda (line)
                     (org-babel-chomp ;; remove trailing newlines
                      (when (> (length line) 0) ;; remove empty lines
-		       (cond
-			;; remove leading "-> " from return values
-			((and (>= (length line) 3)
-			      (string= "-> " (substring line 0 3)))
-			 (substring line 3))
-			;; remove trailing "-> <<return-value>>" on the
-			;; last line of output
-			((and (member "output" result-params)
-			      (string-match-p "->" line))
-			 (substring line 0 (string-match "->" line)))
-			(t line)
-			)
-                       ;; (if (and (>= (length line) 3) ;; remove leading "<- "
-                       ;;          (string= "-> " (substring line 0 3)))
-                       ;;     (substring line 3)
-                       ;;   line)
-		       )))
+                       
+                       line)))
                   ;; returns a list of the output of each evaluated expression
                   (org-babel-comint-with-output (session org-babel-jlang-eoe)
                     (insert wrapped-body) (comint-send-input)
