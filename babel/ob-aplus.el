@@ -70,9 +70,9 @@
 	 (result-type (cdr (assoc :result-type params)))
 	 (result-params (cdr (assoc :result-params params)))
 	 ;; expand the body with `org-babel-expand-body:aplus'
-	 (full-body (org-babel-expand-body:aplus body params))
+;;	 (full-body (org-babel-expand-body:aplus body params))
          ;; wrap body appropriately for the type of evaluation and results
-     (wrapped-body full-body))
+     (wrapped-body body))
 
     ((lambda (result)
        (if (or (member "verbatim" result-params)
@@ -102,7 +102,7 @@
        ;; external evaluation
        (let ((script-file (org-babel-temp-file "aplus-script-")))
 	 (with-temp-file script-file
-	   (insert (concat "$mode ascii\n" wrapped-body "$off\n")))
+	   (insert (concat "$mode ascii\n" wrapped-body "\n$off\n")))
          (org-babel-eval
           (format "%s %s"
                   org-babel-aplus-cmd

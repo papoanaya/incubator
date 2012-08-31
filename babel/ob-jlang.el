@@ -70,9 +70,9 @@
 	 (result-type (cdr (assoc :result-type params)))
 	 (result-params (cdr (assoc :result-params params)))
 	 ;; expand the body with `org-babel-expand-body:jlang'
-	 (full-body (org-babel-expand-body:jlang body params))
+	 ;;(full-body (org-babel-expand-body:jlang body params))
          ;; wrap body appropriately for the type of evaluation and results
-     (wrapped-body full-body))
+     (wrapped-body body))
 
     ((lambda (result)
        (if (or (member "verbatim" result-params)
