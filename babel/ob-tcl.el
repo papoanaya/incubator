@@ -86,10 +86,15 @@ nil)
 
 (defvar org-babel-tcl-wrapper-method
   "
-set r \" proc main {%s} \"
+proc main {} {
+   %s
+}
+
+set r [eval main]
 set o [open \"%s\" \"w\"];
-puts o r
-close o
+puts $o $r
+flush $o
+close $o
 
 ")
 
@@ -105,11 +110,11 @@ return the value of the last statement in BODY, as elisp."
   (case result-type
     (output (org-babel-eval org-babel-tcl-command body))
     (value (let ((tmp-file (org-babel-temp-file "tcl-")))
-	     (org-babel-eval
-	      org-babel-tcl-command
-	      (format org-babel-tcl-wrapper-method body
-		      (org-babel-process-file-name tmp-file 'noquote)))
-	     (org-babel-eval-read-file tmp-file)))))
+             (org-babel-eval
+              org-babel-tcl-command
+              (format org-babel-tcl-wrapper-method body
+                      (org-babel-process-file-name tmp-file 'noquote)))
+             (org-babel-eval-read-file tmp-file)))))
 
 (provide 'ob-tcl)
 
