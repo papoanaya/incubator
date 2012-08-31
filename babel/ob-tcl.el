@@ -34,7 +34,7 @@
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("tcl" . "tcl"))
 
-(defvar org-babel-default-header-args:tcl '())
+(defvar org-babel-default-header-args:tcl nil)
 
 (defvar org-babel-tcl-command "tclsh"
   "Name of command to use for executing tcl code.")
@@ -63,7 +63,7 @@ This function is called by `org-babel-execute-src-block'."
   "Return list of tcl statements assigning the block's variables."
   (mapcar
    (lambda (pair)
-     (format "$%s=%s;"
+     (format "set %s %s"
 	     (car pair)
 	     (org-babel-tcl-var-to-tcl (cdr pair))))
    (mapcar #'cdr (org-babel-get-header params :var))))
