@@ -1,8 +1,8 @@
-;;; ob-plantuml.el --- org-babel functions for plantuml evaluation
+;;; ob-eukleides.el --- org-babel functions for eukleides evaluation
 
 ;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
 
-;; Author: Zhang Weize
+;; Author: Luis Anaya
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: http://orgmode.org
 
@@ -23,64 +23,79 @@
 
 ;;; Commentary:
 
-;; Org-Babel support for evaluating plantuml script.
+;; Org-Babel support for evaluating eukleides script.
 ;;
-;; Inspired by Ian Yang's org-export-blocks-format-plantuml
-;; http://www.emacswiki.org/emacs/org-export-blocks-format-plantuml.el
+;; Inspired by Ian Yang's org-export-blocks-format-eukleides
+;; http://www.emacswiki.org/emacs/org-export-blocks-format-eukleides.el
 
 ;;; Requirements:
 
-;; plantuml     | http://plantuml.sourceforge.net/
-;; plantuml.jar | `org-plantuml-jar-path' should point to the jar file
+;; eukleides     | http://eukleides.org
+;; eukleides     | `org-eukleides-path' should point to the eukleides executablexs
 
 ;;; Code:
 (require 'ob)
 (require 'ob-eval)
 
-(defvar org-babel-default-header-args:plantuml
+(defvar org-babel-default-header-args:eukleides
   '((:results . "file") (:exports . "results"))
-  "Default arguments for evaluating a plantuml source block.")
+  "Default arguments for evaluating a eukleides source block.")
 
-(defcustom org-plantuml-jar-path nil
-  "Path to the plantuml.jar file."
+(defcustom org-eukleides-path nil
+  "Path to the eukleides.jar file."
   :group 'org-babel
   :version "24.1"
   :type 'string)
 
-(defun org-babel-execute:plantuml (body params)
-  "Execute a block of plantuml code with org-babel.
+
+(defcustom org-eukleides-eps-to-raster nil
+  "Command used to convert EPS to raster. Nil for no conversion."
+  :group 'org-babel
+  :type '(choice
+         (repeat :tag "Shell Command Sequence" (string :tag "Shell Command"))
+         (const :tag "sam2p" "a=%s;b=%s;sam2p ${a} ${b}" )
+         (const :tag "NetPNM"  "a=%s;b=%s;pstopnm -stdout ${a} | pnmtopng  > ${b}" )
+         (const :tag "None" nil)))
+
+
+(defun org-babel-execute:eukleides (body params)
+  "Execute a block of eukleides code with org-babel.
 This function is called by `org-babel-execute-src-block'."
   (let* ((result-params (split-string (or (cdr (assoc :results params)) "")))
 	 (out-file (or (cdr (assoc :file params))
-		       (error "PlantUML requires a \":file\" header argument")))
+		       (error "Eukleides requires a \":file\" header argument")))
 	 (cmdline (cdr (assoc :cmdline params)))
-	 (in-file (org-babel-temp-file "plantuml-"))
+	 (in-file (org-babel-temp-file "eukleides-"))
 	 (java (or (cdr (assoc :java params)) ""))
-	 (cmd (if (not org-plantuml-jar-path)
-		  (error "`org-plantuml-jar-path' is not set")
-		(concat "java " java " -jar "
-			(shell-quote-argument
-			 (expand-file-name org-plantuml-jar-path))
-			(if (string= (file-name-extension out-file) "svg")
-			    " -tsvg" "")
-			(if (string= (file-name-extension out-file) "eps")
-			    " -teps" "")
-			" -p " cmdline " < "
-			(org-babel-process-file-name in-file)
-			" > "
-			(org-babel-process-file-name out-file)))))
-    (unless (file-exists-p org-plantuml-jar-path)
-      (error "Could not find plantuml.jar at %s" org-plantuml-jar-path))
-    (with-temp-file in-file (insert (concat "@startuml\n" body "\n@enduml")))
+	 (cmd (if (not org-eukleides-path)
+		  (error "`org-eukleides-path' is not set")
+		(concat (expand-file-name org-eukleides-path)
+                " -b --output="
+                (org-babel-process-file-name 
+                 (concat 
+                  (file-name-sans-extension out-file) ".eps"))
+                " "
+                (org-babel-process-file-name in-file)))))
+    (unless (file-exists-p org-eukleides-path)
+      (error "Could not find eukleides at %s" org-eukleides-path))
+    
+    (if (string= (file-name-extension out-file) "png")
+        (if org-eukleides-eps-to-raster
+            (orb-babel-eval (format org-eukleides-eps-to-raster  
+                                    (concat (file-name-sans-extension out-file) ".eps")
+                                    (concat (file-name-sans-extension out-file) ".png")))
+          (error "Conversion to PNG not supported. use a file with an EPS name")))
+
+    (with-temp-file in-file (insert body))
     (message "%s" cmd) (org-babel-eval cmd "")
     nil)) ;; signal that output has already been written to file
 
-(defun org-babel-prep-session:plantuml (session params)
-  "Return an error because plantuml does not support sessions."
-  (error "Plantuml does not support sessions"))
+(defun org-babel-prep-session:eukleides (session params)
+  "Return an error because eukleides does not support sessions."
+  (error "Eukleides does not support sessions"))
 
-(provide 'ob-plantuml)
+(provide 'ob-eukleides)
 
 
 
-;;; ob-plantuml.el ends here
+;;; ob-eukleides.el ends here

@@ -4,6 +4,7 @@
 
 ;; Authors: Thorsten Jolitz
 ;;	 Eric Schulte
+;;   Luis Anaya (aplus)
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: http://orgmode.org
 

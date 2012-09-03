@@ -4,6 +4,8 @@
 
 ;; Authors: Dan Davison
 ;;	 Eric Schulte
+;;   Luis Anaya (tcl)
+;;
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: http://orgmode.org
 

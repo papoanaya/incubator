@@ -4,6 +4,8 @@
 
 ;; Author: Eric S Fraga
 ;;	Eric Schulte
+;;  Luis Anaya (Mathomatic)
+
 ;; Keywords: literate programming, reproducible research, mathomatic
 ;; Homepage: http://orgmode.org
 
