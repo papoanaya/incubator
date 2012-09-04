@@ -42,7 +42,7 @@
   "Default arguments for evaluating a eukleides source block.")
 
 (defcustom org-eukleides-path nil
-  "Path to the eukleides.jar file."
+  "Path to the eukleides executable file (whole path)."
   :group 'org-babel
   :version "24.1"
   :type 'string)
