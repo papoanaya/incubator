@@ -42,7 +42,7 @@
   "Default arguments for evaluating a eukleides source block.")
 
 (defcustom org-eukleides-path nil
-  "Path to the eukleides executable file (whole path)."
+  "Path to the eukleides.jar file."
   :group 'org-babel
   :version "24.1"
   :type 'string)
@@ -81,7 +81,7 @@ This function is called by `org-babel-execute-src-block'."
     
     (if (string= (file-name-extension out-file) "png")
         (if org-eukleides-eps-to-raster
-            (orb-babel-eval (format org-eukleides-eps-to-raster  
+            (shell-command (format org-eukleides-eps-to-raster  
                                     (concat (file-name-sans-extension out-file) ".eps")
                                     (concat (file-name-sans-extension out-file) ".png")))
           (error "Conversion to PNG not supported. use a file with an EPS name")))
