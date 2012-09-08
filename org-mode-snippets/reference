@@ -1,0 +1,10 @@
+# name: reference
+# key: ref
+# --
+#+BEGIN_GROFF
+.RL
+.LI 
+$1
+.LE
+#+END_GROFF
+$0
