@@ -33,7 +33,7 @@
          (setq input (read-line))
          (setq input (string "@startuml\n" input "\n@enduml\n"))
          (setq input (replace "~" input "\n"))
-         (println input)
+;;         (println input)
          (write-file (string TMPDIR "/" "temp.plant") input)
          (! (format "java -jar %s/%s -teps %s" PLANTUML_PATH PIPE_PLANTUML
                     (string TMPDIR "/temp.plant")))
