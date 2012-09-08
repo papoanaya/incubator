@@ -1,15 +1,9 @@
-# write gnuplot-commands within the input line, 
-# use as many commands as necessary, 
-# divide them by the ~ chararacter, because the ENTER key terminates the input and sends it to gnuplot.
-# output is the graph made by gnuplot.
-
+#!/usr/bin/env newlisp 
+# Send plantuml commands and create an image in TexMacs
 #tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
 
 (setq PLANTUML_PATH "c:/Users/luis/Programs")
 (setq PIPE_PLANTUML "plantuml.jar")
-
-# PLANTUML_PATH=/cygdrive/w/tex_cd/programme/gnuplot/
-#  PIPE_PLANTUML=pgnuplot.exe
 
 # defining temporary postscript file directory
 (setq TMPDIR ".")
@@ -20,7 +14,6 @@
 (setq TEMP_PS_NAME "temp.eps")
 
 # startup banner
-#tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
 
 (setq DATA_BEGIN "\002")
 (setq DATA_END "\005")

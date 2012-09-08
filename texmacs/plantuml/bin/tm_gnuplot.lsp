@@ -1,7 +1,9 @@
+#!/usr/bin/env newlisp
 # write gnuplot-commands within the input line, 
 # use as many commands as necessary, 
 # divide them by the ~ chararacter, because the ENTER key terminates the input and sends it to gnuplot.
 # output is the graph made by gnuplot.
+# this version is to be used with newlisp and windows
 
 ;; (if (!= (nth 1 (main-args) ) "--texmacs" )
 ;;     (begin

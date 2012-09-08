@@ -1,7 +1,9 @@
-# write gnuplot-commands within the input line, 
+#!/usr/bin/env newlisp
+# write eukleides within the input line, 
 # use as many commands as necessary, 
 # divide them by the ~ chararacter, because the ENTER key terminates the input and sends it to gnuplot.
 # output is the graph made by gnuplot.
+# this file is to be used in Windows.
 
 ;; (if (!= (nth 1 (main-args) ) "--texmacs" )
 ;;     (begin
@@ -14,15 +16,9 @@
 
 # defining pipe-gnuplot binary path and name 
 # for unix/linux environments
-#GNUPLOT_PATH=
-#PIPE_GNUPLOT=gnuplot
-# for windows/cygwin environment
 
 (setq EUKLEIDES_PATH "")
 (setq PIPE_EUKLEIDES "eukleides")
-
-# EUKLEIDES_PATH=/cygdrive/w/tex_cd/programme/gnuplot/
-#  PIPE_EUKLEIDES=pgnuplot.exe
 
 # defining temporary postscript file directory
 (setq TMPDIR ".")
@@ -33,7 +29,6 @@
 (setq TEMP_FILE "euktmp")
 	
 # startup banner
-#tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
 
 (setq DATA_BEGIN "\002")
 (setq DATA_END "\005")
@@ -84,9 +79,9 @@
                (print (read-file (format "%s/%s.eps" TMPDIR TEMP_FILE)))
                (print DATA_END)))
 
-;;         (delete-file (format "%s/%s.euk" TMPDIR TEMP_FILE))
-;;         (delete-file (format "%s/%s.eps" TMPDIR TEMP_FILE))  
-;;         (delete-file (format "%s/%s.err" TMPDIR TEMP_FILE))
+         (delete-file (format "%s/%s.euk" TMPDIR TEMP_FILE))
+         (delete-file (format "%s/%s.eps" TMPDIR TEMP_FILE))  
+         (delete-file (format "%s/%s.err" TMPDIR TEMP_FILE))
          ))
 
 (exit)
