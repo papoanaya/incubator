@@ -19,13 +19,12 @@
   (with u (pre-serialize lan t)
     (with s (texmacs->code u)
       (string-append (escape-verbatim (string-replace s "\n" "~")) "\n"))))
-
+;;  (:scripts "Plantuml)
+;;  (:initialize (plantuml-initialize))
 (plugin-configure plantuml
   (:require #t )
-;;  (:initialize (plantuml-initialize))
   (:launch "newlisp c:/users/luis/plantuml/bin/goplantuml.nlsp")
   (:serializer ,plantuml-serialize)
-  (:session "Plantuml)
-;;  (:scripts "Plantuml)
+  (:session "Plantuml")
 )
 
