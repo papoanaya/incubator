@@ -50,7 +50,7 @@
          (print "ps:")
          (print (read-file (format "%s/%s" TMPDIR "temp.eps")))
          (print DATA_END)
-         (delete-file (format "%s/%s" TMPDIR "temp.plant.eps"))
+         (delete-file (format "%s/%s" TMPDIR "temp.eps"))
          (delete-file (format "%s/%s" TMPDIR "temp.plant"))
          ))
 
