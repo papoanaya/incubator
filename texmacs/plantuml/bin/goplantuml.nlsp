@@ -1,0 +1,57 @@
+# write gnuplot-commands within the input line, 
+# use as many commands as necessary, 
+# divide them by the ~ chararacter, because the ENTER key terminates the input and sends it to gnuplot.
+# output is the graph made by gnuplot.
+
+#tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
+
+(setq PLANTUML_PATH "c:/Users/luis/Programs")
+(setq PIPE_PLANTUML "plantuml.jar")
+
+# PLANTUML_PATH=/cygdrive/w/tex_cd/programme/gnuplot/
+#  PIPE_PLANTUML=pgnuplot.exe
+
+# defining temporary postscript file directory
+(setq TMPDIR ".")
+
+(if (not (directory TMPDIR))
+    (make-dir TMPDIR))
+
+(setq TEMP_PS_NAME "temp.eps")
+
+# startup banner
+#tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
+
+(setq DATA_BEGIN "\002")
+(setq DATA_END "\005")
+(setq DATA_ESCAPE "\027")
+
+(print DATA_BEGIN)
+(print "verbatim:This is a TeXmacs interface for PlantUML")
+
+# prompt-input-gnuplot-output loop
+(while true
+       (begin 
+         (print DATA_BEGIN)
+         (print "channel:prompt")
+         (print DATA_END)
+         (print "PLANTUML]")
+         (print DATA_END)        
+         (setq input (read-line))
+         (setq input (string "@startuml\n" input "\n@enduml\n"))
+         (setq input (replace "~" input "\n"))
+         (println input)
+         (write-file (string TMPDIR "/" "temp.plant") input)
+         (! (format "java -jar %s/%s -teps %s" PLANTUML_PATH PIPE_PLANTUML
+                    (string TMPDIR "/temp.plant")))
+         (print DATA_BEGIN)
+         (print "verbatim:")
+         (print DATA_BEGIN)
+         (print "ps:")
+         (print (read-file (format "%s/%s" TMPDIR "temp.eps")))
+         (print DATA_END)
+         (delete-file (format "%s/%s" TMPDIR "temp.plant.eps"))
+         (delete-file (format "%s/%s" TMPDIR "temp.plant"))
+         ))
+
+(exit)
