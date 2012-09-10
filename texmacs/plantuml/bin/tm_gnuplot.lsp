@@ -11,8 +11,6 @@
 ;;       (exit 1)))
 
 # control characters
-#tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
-#eval $tmp
 
 # defining pipe-gnuplot binary path and name 
 # for unix/linux environments
@@ -27,7 +25,7 @@
 #  PIPE_GNUPLOT=pgnuplot.exe
 
 # defining temporary postscript file directory
-(setq TMPDIR ".")
+(setq TMPDIR (or (env "TMPDIR") "."))
 
 (if (not (directory TMPDIR))
     (make-dir TMPDIR))
@@ -39,7 +37,6 @@
 ;;init='reset~set terminal postscript eps enhanced ~set output "'$TEMP_DIR$TEMP_PS_NAME'"~set size 1,1~set autoscale~'
 	
 # startup banner
-#tmp=`$ECHO DATA_BEGIN=X DATA_END=Y DATA_ESCAPE=Z | tr "XYZ" "\002\005\027" `
 
 (setq DATA_BEGIN "\002")
 (setq DATA_END "\005")

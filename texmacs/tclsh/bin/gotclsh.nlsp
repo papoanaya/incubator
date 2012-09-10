@@ -8,7 +8,7 @@
 (setq PIPE_GNUPLOT "tclsh")
 
 # defining temporary postscript file directory
-(setq TMPDIR ".")
+(setq TMPDIR (or (env "TMPDIR") "."))
 
 (if (not (directory TMPDIR))
     (make-dir TMPDIR))
