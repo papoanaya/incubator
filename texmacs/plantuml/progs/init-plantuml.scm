@@ -23,7 +23,7 @@
 ;;  (:initialize (plantuml-initialize))
 (plugin-configure plantuml
   (:require #t )
-  (:launch "newlisp c:/users/luis/plantuml/bin/goplantuml.nlsp")
+  (:launch "goplantuml.nlsp")
   (:serializer ,plantuml-serialize)
   (:session "Plantuml")
 )
