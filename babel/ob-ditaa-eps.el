@@ -86,8 +86,13 @@ This function is called by `org-babel-execute-src-block'."
     (unless (file-exists-p org-ditaa-eps-jar-path)
       (error "Could not find ditaa.jar at %s" org-ditaa-eps-jar-path))
     (with-temp-file in-file (insert body))
-    (message cmd0) (shell-command cmd0)
-    (message cmd1) (shell-command cmd1)
+    (cond 
+     ((string-match ".\.pdf$" out-file)
+      (message cmd0) (shell-command cmd0)
+      (message cmd1) (shell-command cmd1))
+     (t
+      (message cmd0) (shell-command cmd0)
+      (shell-command (format "mv %s %s") (concat in-file ".eps" out-file))))
     nil)) ;; signal that output has already been written to file
 
 (defun org-babel-prep-session:ditaa-eps (session params)
