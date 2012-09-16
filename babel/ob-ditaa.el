@@ -1,8 +1,8 @@
-;;; ob-ditaa-eps.el --- org-babel functions for ditaa evaluation
+;;; ob-ditaa.el --- org-babel functions for ditaa evaluation
 
 ;; Copyright (C) 2009-2012  Free Software Foundation, Inc.
 
-;; Author: Eric Schulte und Arne Babenhauserheide
+;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: http://orgmode.org
 
@@ -23,12 +23,9 @@
 
 ;;; Commentary:
 
-;; Org-Babel support for evaluating ditaa source code as eps/pdf.
+;; Org-Babel support for evaluating ditaa source code.
 ;;
-;; Almost verbatim copy from ob-ditaa, but with ditaa-eps and epstopdf
-;; as intermediate step.
-;;
-;; Ditaa differs from most standard languages in that
+;; This differs from most standard languages in that
 ;;
 ;; 1) there is no such thing as a "session" in ditaa
 ;;
@@ -37,35 +34,43 @@
 ;; 3) we are adding the "file" and "cmdline" header arguments
 ;;
 ;; 4) there are no variables (at least for now)
+;;
+;; 5) it depends on a variable defined in org-exp-blocks (namely
+;;    `org-ditaa-jar-path') so be sure you have org-exp-blocks loaded
 
 ;;; Code:
 (require 'ob)
 
-(defvar org-babel-default-header-args:ditaa-eps
-  '((:results . "file") (:exports . "results") (:java .
-"-Dfile.encoding=UTF-8"))
+(defvar org-ditaa-jar-path) ;; provided by org-exp-blocks
+
+(defvar org-babel-default-header-args:ditaa
+  '((:results . "file")
+    (:exports . "results")
+    (:java . "-Dfile.encoding=UTF-8"))
   "Default arguments for evaluating a ditaa source block.")
 
-(defcustom org-ditaa-eps-jar-path (expand-file-name
-			    "DitaaEps.jar"
-			    (file-name-as-directory
-			     (expand-file-name
-			      "scripts"
-			      (file-name-as-directory
-			       (expand-file-name
-				"../contrib"
-				(file-name-directory (find-library-name "org")))))))
-  "Path to the ditaa-eps jar executable."
+(defcustom org-ditaa-eps-jar-path 
+(expand-file-name
+   (concat 
+    (file-name-directory
+     org-ditaa-jar-path) "/"
+   "DitaaEps.jar" ))
+  "Default Ditaa Eps"
   :group 'org-babel
+  :type 'string
+)
+
+(defcustom org-ditaa-jar-option "-jar"
+  "Option for the ditaa jar file.
+Do not leave leading or trailing spaces in this string."
+  :group 'org-babel
+  :version "24.1"
   :type 'string)
 
-
-(defvar org-ditaa-eps-jar-path)
-(defun org-babel-execute:ditaa-eps (body params)
+(defun org-babel-execute:ditaa (body params)
   "Execute a block of Ditaa code with org-babel.
 This function is called by `org-babel-execute-src-block'."
-  (let* ((result-params (split-string (or (cdr (assoc :results params))
-"")))
+  (let* ((result-params (split-string (or (cdr (assoc :results params)) "")))
 	 (out-file ((lambda (el)
 		      (or el
 			  (error
@@ -74,37 +79,33 @@ This function is called by `org-babel-execute-src-block'."
 	 (cmdline (cdr (assoc :cmdline params)))
 	 (java (cdr (assoc :java params)))
 	 (in-file (org-babel-temp-file "ditaa-"))
-	 (cmd0 (concat "java " java " -jar "
+	 (eps (cdr (assoc :eps params)))
+	 (cmd (concat "java " java " " org-ditaa-jar-option " "
 		      (shell-quote-argument
-		       (expand-file-name org-ditaa-eps-jar-path))
+		       (expand-file-name
+			(if eps org-ditaa-eps-jar-path org-ditaa-jar-path)))
 		      " " cmdline
 		      " " (org-babel-process-file-name in-file)
-		      " " (org-babel-process-file-name (concat in-file ".eps"))))
-	 (cmd1 (concat "epstopdf"
-		      " " (org-babel-process-file-name (concat in-file ".eps"))
-		      " -o=" (org-babel-process-file-name out-file))))
-    (unless (file-exists-p org-ditaa-eps-jar-path)
-      (error "Could not find ditaa.jar at %s" org-ditaa-eps-jar-path))
+		      " " (org-babel-process-file-name out-file)))
+	 (pdf-cmd (when (and (or (string= (file-name-extension out-file) "pdf")
+				 (cdr (assoc :pdf params))))
+		    (concat
+		     "epstopdf"
+		     " " (org-babel-process-file-name (concat in-file ".eps"))
+		     " -o=" (org-babel-process-file-name out-file)))))
+    (unless (file-exists-p org-ditaa-jar-path)
+      (error "Could not find ditaa.jar at %s" org-ditaa-jar-path))
     (with-temp-file in-file (insert body))
-    (cond 
-     ((string-match ".\.pdf$" out-file)
-      (message cmd0) (shell-command cmd0)
-      (message cmd1) (shell-command cmd1))
-     (t
-      (message cmd0) (shell-command cmd0)
-      (shell-command (format "mv %s %s" 
-			     (concat in-file ".eps") out-file))))
+    (message cmd) (shell-command cmd)
+    (when pdf-cmd (message pdf-cmd) (shell-command pdf-cmd))
     nil)) ;; signal that output has already been written to file
 
-(defun org-babel-prep-session:ditaa-eps (session params)
+(defun org-babel-prep-session:ditaa (session params)
   "Return an error because ditaa does not support sessions."
   (error "Ditaa does not support sessions"))
 
-(defun ditaa-eps-mode ()
-  (artist-mode))
-
-(provide 'ob-ditaa-eps)
-
-;;; ob-ditaa-eps.el ends here
+(provide 'ob-ditaa)
 
 
+
+;;; ob-ditaa.el ends here
