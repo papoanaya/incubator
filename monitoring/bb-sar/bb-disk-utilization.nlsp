@@ -6,7 +6,7 @@
 # THE OFFENDING SCRIPT...
 #
 
-(setq BBPROG="bb.nlsp")
+(setq BBPROG="bb-disk-utilization.nlsp")
 
 #
 # TEST NAME: THIS WILL BECOME A COLUMN ON THE DISPLAY
@@ -16,7 +16,7 @@
 # BE LINKED INTO THE DISPLAY AUTOMATICALLY.
 #
 
-(setq TEST "base")
+(setq TEST "diskutil")
 
 (constant 'GREEN "green")
 (constant 'YELLOW "yellow")
@@ -47,6 +47,29 @@
 # GET CURRENT VALUES
 #
 
+(define (get-sar-values)
+  (let ((sar-list 
+         (clean nil? (map (fn (x) (when (find {Average:} x) x))
+                    (exec "sar -d 10 10")))))
+    (rest sar-list)))
+
+
+(define (get-max-util sar-list) 
+  (letn ((percent-util (map 
+                        (fn (x) 
+                          (float (last (parse x))))  
+                        sar-list)))
+    (apply max percent-util)))
+
+(define (get-device-list sar-list)
+  (letn ((percent-util
+          (map 
+           (fn (x)
+             (let ((item (parse x)))
+               (cons (nth 1 item) (last item))))
+           sar-list)))
+    percent-util))
+
 (setq DATA-LINE (define (gather-data)) 0)
 (setq VALUE (let () DATA-LINE))
 
@@ -55,6 +78,9 @@
 #
 
 ;(println MYSQL_UPTIME)
+
+
+
 
 (!
  (format "echo \"%s\" > %s/%s.%s.test.log"
