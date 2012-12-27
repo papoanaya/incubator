@@ -50,7 +50,7 @@
 (define (get-sar-values)
   (let ((sar-list 
          (clean nil? (map (fn (x) (when (find {Average:} x) x))
-                    (exec "sar -d 10 10")))))
+                          (exec "sar -d 10 10")))))
     (rest sar-list)))
 
 
@@ -70,64 +70,70 @@
            sar-list)))
     percent-util))
 
-(setq DATA-LINE (define (gather-data)) 0)
-(setq VALUE (let () DATA-LINE))
+(define (get-color-value disk-max)
+  (let ((COLOR GREEN)
+        (STATUS "OK"))
+    (cond
+     ((and (>= disk-max 50) (<= disk-max 75))
+      (begin
+        (setq COLOR YELLOW)
+        (setq STATUS "Yellow")))
 
-#
-# WRITE OUR OWN VALUES TO LOG
-#
+     ((>= disk-max 75)
+      (begin
+        (setq COLOR RED)
+        (setq STATUS "Red"))))
+    (cons COLOR STATUS)))
 
-;(println MYSQL_UPTIME)
+(if (= TESTNAME "diskutil")
+    (letn ((sar-list (get-sar-values))
+           (sar-max (get-max-util sar-list))
+           (sar-device-list (get-device-list sar-list))
+           (sar-color-list (get-color-value sar-max))
+           (sar-color  (nth 0 sar-color-list))
+           (sar-status (nth 1 sar-color-list)))
+
+      (write-file (format "%s/status.%s" (env "BBLOGS") TESTNAME) DATA-LINE)
+      (!
+       (format "echo \"%s\" > %s/%s.%s.test.log"
+               VALUE
+               (env "BBTMP")
+               (env "MACHINE")
+               TEST))
+
+      
+      (dolist (value-item sar-device-list)
+              (! (format
+                      (append "%s %s \"data %s.trends\n[diskutil.%s.rrd]\n"
+                              "DS:%s:%s:600:0:10000 %d\"\n")
+                      (env "BB")
+                      (env "BBDISP")
+                      (env "MACHINE")
+                      (nth 0 value-item)
+                      "GAUGE"
+                      (int (nth 1 value-item)))))
 
 
+      (! (format "%s %s \"status %s.%s %s %s - %s \n\n%s\"\n"
+                 (env "BB")
+                 (env "BBDISP")
+                 (env "MACHINE")
+                 TESTNAME
+                 sar-color
+                 (date)
+                 sar-status
+                 (append "Ratio: " (string (nth 2 results)))))))
 
 
-(!
- (format "echo \"%s\" > %s/%s.%s.test.log"
-	 VALUE
-	 (env "BBTMP")
-	 (env "MACHINE")
-	 TEST))
-
-
-
-(setq COLOR GREEN)
-(setq STATUS "OK")
-
-
-#
-# HANDLE YELLOW CONDITIONS
-#
-
-
-(cond 
-
- ((yellow?)
-  (begin
-    (setq COLOR YELLOW)
-    (setq STATUS "Yellow ")))
-
-#
-# HANDLE RED CONDITIONS
-#
-
-  ((red?)
-   (begin
-     (setq COLOR RED )
-     (setq STATUS "Red Status"))))
-
-(setq fp (open (format "%s/status.%s" (env "BBLOGS") TEST) write))
-(write-line fp DATA-LINE)
-(close fp)
 
 (! (format "%s %s \"status %s.%s %s %s - %s \n\n%s\"\n"
-	   (env "BB")
-	   (env "BBDISP")
-	   (env "MACHINE")
-	   TEST   
-	   COLOR
-	   (date)
-	   STATUS
-	   DATA-LINE))
+           (env "BB")
+           (env "BBDISP")
+           (env "MACHINE")
+           TEST   
+           COLOR
+           (date)
+           STATUS
+           DATA-LINE))
 
 (exit 0)
