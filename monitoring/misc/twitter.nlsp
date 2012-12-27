@@ -1,0 +1,150 @@
+#!/usr/local/bin/newlisp
+; post, delete and see user and friends messages and followers on http://twitter.com 
+; February 12th, 2009, L.M. 
+; version 0.1 
+; version 0.2 
+; added twitter seach 
+; fields now separated by CR-LF 
+; records now separated by CR-LF CR-LF 
+; version 0.3; eliminated spurious nil in search 
+; version 0.4; added note about basic-auth expiration on Twitter June 1st, 2010 
+; added xml option to search
+; NOTE, that all funcion requiring user/password authentication may expire 
+; in June 1st 2010, when twitter switches to oAuth type of authentication. 
+;; AS OF JULY 4th, 2010, BASIC AUTH STILL WORKS
+; when no parameters are given, show help text
+
+(set 'helptext 
+     [text]
+     EXAMPLES: 
+     twitter userid:pass followers 
+     twitter userid:pass followers xml 
+     twitter userid:pass user 
+     twitter userid:pass user 10 
+     twitter userid:pass friends 
+     twitter userid:pass friends 10 
+     twitter userid:pass delete 1234567890 
+     twitter userid:pass post "this is a test" 
+     twitter search the-word-to-search
+     append "xml" to return results as XML 
+     [/text])
+
+(unless (main-args 3) 
+        (println helptext) 
+        (exit))
+
+
+(when 
+ (= (main-args 2) 
+    "search") ; this is a search, no user authentication is required
+
+(set 'xml 
+     (get-url (string "http://search.twitter.com/search.atom?q=" (main-args 3)))) 
+
+(when (= (main-args -1) "xml") 
+      (println xml)
+      (exit))
+
+
+(xml-type-tags nil nil nil nil) ; no extra tags
+
+(set 'sxml (xml-parse xml 31)) ; turn on SXML options 
+
+(set 'entry-index (ref-all '(entry *) sxml match))
+(when (empty? entry-index) 
+      (println "No entries found") 
+      (exit))
+
+(dolist (idx entry-index) 
+        (set 'entry (sxml idx)) 
+        (println (lookup 'published entry) "\r\n" 
+                 (lookup '(author name) entry ) "\r\n" 
+                 (lookup 'title entry) "\r\n\r\n"))
+(exit))
+
+(define (url-encode str)
+  (replace {([^a-zA-Z0-9])} 
+           str (format "%%%2X" (char $1)) 0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FUNCTIONS REQUIRING AUTHENTICATION ;;;;;;;;;;;;;;;;;;
+; authorization user id and password 
+
+(set 'user-pass (main-args 2))
+(set 'auth (append "Authorization: Basic " (base64-enc user-pass) "\r\n"))
+
+(when (= (main-args 3) "followers")
+      (set 'xml (get-url "http://twitter.com/statuses/followers.xml" 5000 auth)) 
+      (if (= (main-args -1) "xml") 
+          (println xml)
+          (println (join (find-all "<screen_name>(.*)</screen_name>" xml $1) "\r\n") "\r\n")) 
+      (exit))
+
+(when (= (main-args 3) "user") 
+      (set 'cnt (main-args 4)) 
+      (if-not cnt (set 'cnt "1")) 
+                                        ; return only the last post by default 
+      (set 'url (append "http://twitter.com/statuses/user_timeline.xml?count=" cnt)) 
+      (set 'xml (get-url url 5000 auth)) 
+      (if (= (main-args -1) "xml")
+          (println xml) 
+
+          (begin (xml-type-tags nil nil nil nil) 
+                 (set 'sxml (xml-parse xml 31)) 
+                 (set 'sxml (2 (sxml 0))) 
+                 
+                 (dolist (post sxml) 
+                         (println (019 (post 11)) "\r\n" (post 21) "\r\n" (post 31) "\r\n\r\n")))) 
+(exit))
+
+
+(when (= (main-args 3) "friends") 
+      (set 'cnt (main-args 4)) 
+      (if-not cnt (set 'cnt "1")) ; return only the last post by default 
+
+(set 'url (append "http://twitter.com/statuses/friends_timeline.xml?count=" cnt)) 
+(set 'xml (get-url url 5000 auth)) 
+
+(if (= (main-args -1) "xml") 
+    (println xml) 
+    (begin (xml-type-tags nil nil nil nil) 
+           (set 'sxml (xml-parse xml 31)) 
+           (set 'sxml (2 (sxml 0))) 
+           (dolist (post sxml) 
+                   (println (019 (post 11)) "\r\n" 
+                            (post 1021) "\r\n" 
+                            (post 31) "\r\n\r\n")))) 
+
+(exit))
+
+(when (= (main-args 3) "delete")
+
+      (set 'url (string "http://twitter.com/statuses/destroy/" 
+                        (main-args 4) ".xml")) 
+      (set 'xml (delete-url url 5000 auth)) 
+      (if (= (main-args -1) "xml") 
+          (println xml) 
+          (begin
+            (if (find "<text>(.*)</text>" xml 0)
+                (println "deleted: " $1))
+            (if (find "<error>(.*)</error>" xml 0) 
+                (println "error: " $1)))) 
+(exit))
+
+
+(when (= (main-args 3) "post")
+      (set 'url (string "http://twitter.com/statuses/update.xml")) 
+      (set 'msg (join (4 (main-args)) " "))
+      (set 'text (append "status=" (url-encode msg)))
+      (set 'content-type "application/x-www-form-urlencoded") 
+      (set 'xml (post-url url text content-type 5000 auth)) 
+      (if (= (main-args -1) "xml") 
+          (println xml) 
+          (begin
+            (if (find "<text>(.*)</text>" xml 0)
+                (println "posted: " $1))
+            (if (find "<error>(.*)</error>" xml 0) 
+                (println "error: " $1)))) 
+      (exit))
+
+(println "wrong command") (println helptext) (exit)
+; eof
