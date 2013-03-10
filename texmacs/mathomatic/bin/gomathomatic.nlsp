@@ -1,0 +1,41 @@
+#!/usr/bin/env newlisp
+# write tclsh within the input line, 
+# use as many commands as necessary, 
+# divide them by the ~ chararacter, because the ENTER key terminates the input and sends it to gnuplot.
+# output is the graph made by gnuplot.
+
+(setq GNUPLOT_PATH "")
+(setq PIPE_GNUPLOT "mathomatic -c -t -q ")
+
+# defining temporary postscript file directory
+(setq TMPDIR (env "TMPDIR"))
+
+(if (not (directory TMPDIR))
+    (make-dir TMPDIR))
+
+(setq DATA_BEGIN "\002")
+(setq DATA_END "\005")
+(setq DATA_ESCAPE "\027")
+
+(print DATA_BEGIN)
+(print "verbatim:This is a TeXmacs interface for Mathomatic.")
+
+# prompt-input-gnuplot-output loop
+(while true
+       (begin 
+         (print DATA_BEGIN)
+         (print "channel:prompt")
+         (print DATA_END)
+         (print "%]")
+         (print DATA_END)        
+         (setq input (read-line))
+         (setq input (string (replace "~" input "\n") "\nexit\n") )
+         (write-file (string TMPDIR "/" "temp.mathomatic") input)
+         (print DATA_BEGIN)
+         (print "verbatim:")
+         (! (format "%s %s" PIPE_GNUPLOT (string TMPDIR "/temp.mathomatic")))
+         (print DATA_END)
+         (delete-file (format "%s/%s" TMPDIR "temp.mathomatic"))
+         ))
+
+(exit)

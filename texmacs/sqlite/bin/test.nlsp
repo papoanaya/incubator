@@ -1,0 +1,29 @@
+(map set '(myin sqout) (pipe))
+(map set '(sqin myout) (pipe))
+
+;;(setq PIPE_GNUPLOT (string  "/opt/local/bin/sqlite3 -bail -batch " (env "HOME") "/tmdb"))
+(setq PIPE_GNUPLOT (string  "/opt/local/bin/sqlite3 -batch " (env "HOME") "/tmdb"))
+
+(setq pid (process PIPE_GNUPLOT sqin sqout)) 
+;;(write-line myout "create table a (z integer);\n")
+(write-line myout "create table pp (")
+(write-line myout "z integer,")
+(write-line myout "y integer);")
+
+
+(setq xx (read-line myin))
+(println xx)
+(write-line myout ".schema\n")
+
+(while (setq xx (read-line myin))
+       (print)
+  (println xx))
+
+
+(write-line myout ".quit\n")
+(destroy pid)
+(println "xx")
+
+(exit)
+
+
