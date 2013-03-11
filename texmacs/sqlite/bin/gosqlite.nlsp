@@ -5,20 +5,18 @@
 # output is the graph made by gnuplot.
 
 (setq GNUPLOT_PATH "")
-;; removed -batch
-(setq PIPE_GNUPLOT "/opt/local/bin/sqlite3 -batch ")
-
-(map set '(myin sqout) (pipe))
-(map set '(sqin myout) (pipe))
+;(setq PIPE_GNUPLOT "/opt/local/bin/sqlite3 -batch ")
+(setq PIPE_GNUPLOT "sqlite3 -batch ")
 
 # defining temporary postscript file directory
-(setq TMPDIR (env "TMPDIR"))
+
+(setq TMPDIR (or (env "TMPDIR") "."))
 
 (if (not (directory TMPDIR))
     (make-dir TMPDIR))
 
 (println (string PIPE_GNUPLOT " " TMPDIR "texmacsdb")) 
-(setq pid (process (string PIPE_GNUPLOT " " TMPDIR "texmacsdb") sqin sqout)) 
+
 
 (setq DATA_BEGIN "\002")
 (setq DATA_END "\005")
@@ -36,26 +34,16 @@
          (print "%]")
          (print DATA_END)        
          (setq input (read-line))
+         (println input)
          (setq input (string  (replace "~" input "\n")))
-         
-;;      (write-file (string TMPDIR "/" "temp.sql") input)
-         (print (string input "\n\n"))
-         (write myout (string input "\n\n"))
+         (write-file (string TMPDIR "/temp.sql") input)
 
          (print DATA_BEGIN)
          (print "verbatim:")
 
-;;         (! (format "cat %s | %s %s" (string TMPDIR "/temp.sql") PIPE_GNUPLOT (string TMPDIR "/db")))
-         (println "before data")
-         (println (read-line myin))
-;;          (while (setq data (read-line myin)) 
-;;                 (write-line data)) 
-
-         (println "after data")
+         (! (string "cat " TMPDIR "/temp.sql | "  PIPE_GNUPLOT ))
 
          (print DATA_END)
-         (destroy pid)
-         ;;         (delete-file (format "%s/%s" TMPDIR "temp.sql"))
-         ))
+         (delete-file (format "%s/%s" TMPDIR "temp.sql"))))
 
 (exit)
