@@ -1,0 +1,29 @@
+(setq TMPDIR (or (env "TMPDIR") "."))
+
+(if (not (directory TMPDIR))
+    (make-dir TMPDIR))
+
+(setq input (read-line))
+(setq input (replace "~" input "\n"))
+(write-file (string TMPDIR "/temp.sql") input)
+
+(println (read-file (string TMPDIR "/temp.sql" )))
+
+(map set '(myin sqout) (pipe))
+(map set '(sqin myout) (pipe))
+
+;;(setq PIPE_GNUPLOT (string  "/opt/local/bin/sqlite3 -bail -batch " (env "HOME") "/tmdb"))
+(setq PIPE_GNUPLOT (string  "/usr/bin/sqlite3 -batch " (env "HOME") "/tmdb" ))
+
+;(setq pid (process PIPE_GNUPLOT sqin sqout)) 
+;;(write-line myout "create table a (z integer);\n")
+;(write-line myout "create table pp (")
+;(write-line myout "z integer,")
+;(write-line myout "y integer);")
+
+(! (string "cat " TMPDIR "/temp.sql | "  PIPE_GNUPLOT ))
+
+
+(exit)
+
+
