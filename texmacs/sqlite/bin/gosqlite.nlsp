@@ -7,6 +7,7 @@
 (setq GNUPLOT_PATH "")
 ;(setq PIPE_GNUPLOT "/opt/local/bin/sqlite3 -batch ")
 (setq PIPE_GNUPLOT "sqlite3 -batch ")
+;;(setq PIPE_GNUPLOT "sqlite3 -html ")
 
 # defining temporary postscript file directory
 
@@ -15,7 +16,7 @@
 (if (not (directory TMPDIR))
     (make-dir TMPDIR))
 
-(println (string PIPE_GNUPLOT " " TMPDIR "texmacsdb")) 
+(setq PIPE_GNUPLOT (string PIPE_GNUPLOT " " (env "HOME") "/texmacsdb")) 
 
 
 (setq DATA_BEGIN "\002")
@@ -40,6 +41,7 @@
 
          (print DATA_BEGIN)
          (print "verbatim:")
+;         (print "html:")
 
          (! (string "cat " TMPDIR "/temp.sql | "  PIPE_GNUPLOT ))
 

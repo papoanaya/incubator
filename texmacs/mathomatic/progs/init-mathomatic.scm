@@ -30,7 +30,7 @@
 ;;  (:serializer ,tclsh-serialize)
 ;;  (:tab-completion #t)
 
-(plugin-configure tclsh
+(plugin-configure mathomatic
   (:require (url-exists-in-path? "mathomatic"))
   (:launch "gomathomatic.nlsp")
   (:session "Mathomatic"))

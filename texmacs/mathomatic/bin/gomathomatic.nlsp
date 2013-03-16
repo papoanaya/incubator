@@ -5,7 +5,10 @@
 # output is the graph made by gnuplot.
 
 (setq GNUPLOT_PATH "")
-(setq PIPE_GNUPLOT "mathomatic -c -t -q ")
+(setq PIPE_GNUPLOT "mathomatic -c -t -q")
+;;(setq PIPE_GNUPLOT "mathomatic -x -c -t -q")
+;;(setq PIPE_GNUPLOT "mathomatic -c -t -q -x ")
+;;(setq PIPE_GNUPLOT "rmath -c -x ")
 
 # defining temporary postscript file directory
 (setq TMPDIR (env "TMPDIR"))
@@ -33,6 +36,7 @@
          (write-file (string TMPDIR "/" "temp.mathomatic") input)
          (print DATA_BEGIN)
          (print "verbatim:")
+;;         (print "html:")
          (! (format "%s %s" PIPE_GNUPLOT (string TMPDIR "/temp.mathomatic")))
          (print DATA_END)
          (delete-file (format "%s/%s" TMPDIR "temp.mathomatic"))
