@@ -1,0 +1,109 @@
+$mode ascii
+
+// Get process listing
+
+// linux
+$<processes "top" "-b" "-n 1";
+// bsd
+
+//$<processes "top" "-bu";
+
+// bag the processes line by line.
+
+bag_processes:{
+    // Pre-process to get them line by line.
+    8 drop (bag 1, ("\n" = x) ) bag x := processes
+}
+
+// add memory per process id
+
+calculate_tally pv:  {
+    values := (((rho pv) % 2), 2) rho pv;
+    lista := upg values[;0];
+    unique := (values[lista;0] ~= (1 drop values[lista;0]),1) /values[lista;0];
+
+    n := # unique;
+
+    tally := 0 rho 0;
+
+    n do {
+        x := unique[n];
+        inx := (x = values[;0])/iota (rho lista);
+        tally := tally, x, (+/values[inx;1]);
+    };  
+
+    (((rho tally) % 2), 2 ) rho tally
+}
+
+
+// Clean multiple blanks (from the language reference guide)
+
+clean_blanks v: {
+  // deletes multiple blanks;
+  // remove newlines
+  v := ' ' , v, ' ';
+  v := (~(v=' ') & 1 rot v=' ')/v;
+  1 drop (-' ' = -1 take v) drop v
+}
+
+// Recreate table with 1 blanks between values
+
+clean_process_data pv: {
+// empty vector
+   x := 0 rho 0;
+   (bag 1, ("\n" = x) ) bag x := clean_blanks (pick pv)
+}
+
+// convert "m" to mega bytes
+
+normalize_units dig : {
+// for now, just take care of the mega bytes.
+   multiplier := 1;
+
+   if ('m' in dig) {
+     multiplier := 1000;
+   };
+
+   dig := clean_blanks (( (dig ~= "m") ? (dig ~= "\n") & (dig ~= " ")) / dig);
+   dig := (10 pack (`int?dig) - 48); //atoi
+   dig := dig * multiplier
+
+}
+
+// get the values that are used for plotting.
+
+get_values pv : {
+    n := (rho pv) - 1 ;
+    y := 0 rho 0;
+    z := 0 rho 0;
+
+    n do {
+       z :=  (bag 1, (' ' = x)) bag x := 1 drop (> pv[n]);
+       
+       if ((rho z) > 5) {
+           nu := normalize_units (> z[4]) ;
+           pid := >z[1]; 
+           pid := ( (pid ~= "\n") & (pid ~= " ")) / pid;
+           pid := (10 pack ((`int?pid) - 48 ) );
+           y := y , pid ,  nu
+       };
+
+    };
+    y
+}
+
+// Main
+
+// enclose the processes
+process_data := bag_processes;
+// clean data
+process_data := clean_process_data process_data;
+// get the values for plot
+xx := get_values process_data
+xx := calculate_tally xx ;
+xx
+
+//write the values
+//$>xx proc.dat
+
+$off

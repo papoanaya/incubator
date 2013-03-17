@@ -1,0 +1,18 @@
+$mode ascii
+
+a := 10 2 rho 1 10 2 20 3 30 4 40
+drop a;
+lista := upg a[;0];
+unique := (a[lista;0] ~= (1 drop a[lista;0]),1) /a[lista;0];
+n := # unique;
+
+tally := 0 rho 0;
+
+n do {
+    x := unique[n];
+    inx := (x = a[;0])/iota (rho lista);
+    drop (2 1 rho x, (+/a[inx;1]));
+}  
+
+
+$off

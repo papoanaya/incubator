@@ -1,0 +1,12 @@
+$mode ascii
+
+// Testing
+// Testing
+
+a := iota 10;
+drop a;
+
+drop sys.cpu{}
+
+$off
+

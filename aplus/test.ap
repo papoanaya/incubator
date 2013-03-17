@@ -1,0 +1,6 @@
+$mode ascii
+x := 5 2 rho 1 10 2 20 1 10 2 20 1 10 2 20;
+drop lista := upg x[;0];
+//+/x[lista=x[lista;0];1]
+
+x[lista;] \ 

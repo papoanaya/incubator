@@ -1,0 +1,16 @@
+$mode ascii
+sieve N :{
+  S := N rho 1;
+  S[0] := 0; // 1 is not prime
+  T := min N % 1 + iota L := min N ^ 0.5;
+  count := rho (1 drop iota L);
+  count do {
+     I := count + 1;
+     S[I * (Z take S)/iota Z := I pick  T] := 0;
+  };
+  Z := S/iota N
+}
+
+sieve 20e6
+
+$off
