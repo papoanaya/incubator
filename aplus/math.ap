@@ -1,12 +1,13 @@
 $mode ascii
 
-// Testing
-// Testing
 
-a := iota 10;
-drop a;
+$<x "cat" "/opt/home/papo/audit/wataniya/prov_fw_by_process.csv"
+z := (bag 1, ((',' = x) ? ("\n" = x))) bag x
 
-drop sys.cpu{}
+z := (z ~= ',')/z := > each z
+
+rho z
+
 
 $off
 
